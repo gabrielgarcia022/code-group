@@ -22,4 +22,10 @@ public class ProjetoPredicate extends PredicateBase {
 
         return this;
     }
+
+    public ProjetoPredicate excetoExcluidos() {
+        builder.and(projeto.situacao.ne(ESituacaoProjeto.EXCLUIDO));
+
+        return this;
+    }
 }

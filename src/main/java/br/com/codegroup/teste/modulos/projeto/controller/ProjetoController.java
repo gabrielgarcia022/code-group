@@ -22,6 +22,11 @@ public class ProjetoController {
         return service.getAll(filtros, pageRequest);
     }
 
+    @GetMapping("{projetoId}")
+    public ProjetoDetalharResponse detalhar(@PathVariable String projetoId) {
+        return service.detalhar(projetoId);
+    }
+
     @PostMapping
     public ProjetoResponse salvar(@RequestBody @Valid ProjetoRequest request) {
         return service.salvar(request);

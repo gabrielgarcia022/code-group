@@ -28,12 +28,12 @@ public class ProjetoMembro {
 
     @JoinColumn(name = "FK_PROJETO", referencedColumnName = "ID",
         foreignKey = @ForeignKey(name = "FK_PROJETO"))
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Projeto projeto;
 
     @JoinColumn(name = "FK_MEMBRO", referencedColumnName = "ID",
         foreignKey = @ForeignKey(name = "FK_MEMBRO"))
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Membro membro;
 
     @Column(name = "IS_RESPONSAVEL")

@@ -2,11 +2,11 @@ package br.com.codegroup.teste.modulos.membro.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.thymeleaf.util.StringUtils;
-import java.text.Normalizer;
-import java.util.Locale;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import static br.com.codegroup.teste.modulos.comum.utils.StringUtils.normalizar;
 
 @Getter
 @AllArgsConstructor
@@ -30,11 +30,5 @@ public enum EAtribuicao {
         }
 
         return OUTRO;
-    }
-
-    private static String normalizar(String value) {
-        return Normalizer.normalize(value.trim(), Normalizer.Form.NFD)
-            .replaceAll("\\p{M}", "")
-            .toUpperCase(Locale.ROOT);
     }
 }

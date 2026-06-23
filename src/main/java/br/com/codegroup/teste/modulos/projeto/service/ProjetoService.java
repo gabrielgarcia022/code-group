@@ -2,6 +2,7 @@ package br.com.codegroup.teste.modulos.projeto.service;
 
 import br.com.codegroup.teste.config.PageRequest;
 import br.com.codegroup.teste.modulos.comum.exception.NotFoundException;
+import br.com.codegroup.teste.modulos.comum.exception.ValidacaoException;
 import br.com.codegroup.teste.modulos.membro.model.Membro;
 import br.com.codegroup.teste.modulos.membro.repository.MembroRepository;
 import br.com.codegroup.teste.modulos.projeto.dto.*;
@@ -12,7 +13,6 @@ import br.com.codegroup.teste.modulos.projeto.model.Projeto;
 import br.com.codegroup.teste.modulos.projeto.model.ProjetoMembro;
 import br.com.codegroup.teste.modulos.projeto.repository.ProjetoMembroRepository;
 import br.com.codegroup.teste.modulos.projeto.repository.ProjetoRepository;
-import jakarta.validation.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,15 +35,32 @@ public class ProjetoService {
         return repository.findAll(filtros.toPredicate().build(), pageRequest).map(ProjetoResponse::of);
     }
 
+    public ProjetoDetalharResponse detalhar(String projetoId) {
+        var projeto = getCompleteById(projetoId);
+
+        return ProjetoDetalharResponse.of(projeto);
+    }
+
     @Transactional
     public ProjetoResponse salvar(ProjetoRequest request) {
         var projeto = Projeto.of(request);
         var gerente = getGerenteById(request.getGerenteId());
+        validarCadastro(gerente);
         var projetoMembro = ProjetoMembro.of(gerente, projeto);
         projetoMembro.setIsResponsavel(true);
         projetoMembroRepository.save(projetoMembro);
 
         return ProjetoResponse.of(repository.save(projeto));
+    }
+
+    @SuppressWarnings({"checkstyle:MagicNumber"})
+    private void validarCadastro(Membro gerente) {
+        var projetos = projetoMembroRepository.findByMembroIdAndProjetoSituacaoNotIn(gerente.getId(),
+            List.of(ENCERRADO, CANCELADO, EXCLUIDO));
+
+        if (projetos.size() >= 3) {
+            throw new ValidacaoException("Este gerente já esta alocado em 3 projetos em andamento");
+        }
     }
 
     @Transactional
@@ -79,9 +96,9 @@ public class ProjetoService {
 
     private void validarEdicao(Projeto projeto) {
         if (Objects.equals(projeto.getSituacao(), ESituacaoProjeto.CANCELADO)) {
-            throw new ValidationException("Você não pode editar um projeto cancelado");
+            throw new ValidacaoException("Você não pode editar um projeto cancelado");
         } else if (Objects.equals(projeto.getSituacao(), ESituacaoProjeto.ENCERRADO)) {
-            throw new ValidationException("Você não pode editar um projeto encerrado");
+            throw new ValidacaoException("Você não pode editar um projeto encerrado");
         }
     }
 
@@ -97,19 +114,19 @@ public class ProjetoService {
     @SuppressWarnings({"checkstyle:MagicNumber"})
     private void validarAdicaoMembro(Projeto projeto, Membro membro) {
         if (List.of(ENCERRADO, EXCLUIDO, CANCELADO).contains(projeto.getSituacao())) {
-            throw new ValidationException("Você não pode adicionar membros neste projeto");
+            throw new ValidacaoException("Você não pode adicionar membros neste projeto");
         }
 
         var membrosProjeto = projetoMembroRepository.findByProjetoIdAndSituacaoNot(projeto.getId(),
             ESituacaoProjetoMembro.EXCLUIDO);
         if (membrosProjeto.size() >= 10) {
-            throw new ValidationException("O projeto pode conter no máximo 10 membros");
+            throw new ValidacaoException("O projeto pode conter no máximo 10 membros");
         }
 
         var projetosMembro = projetoMembroRepository.findByMembroIdAndProjetoSituacaoNotIn(membro.getId(),
             List.of(ESituacaoProjeto.CANCELADO, ESituacaoProjeto.ENCERRADO));
         if (projetosMembro.size() >= 3) {
-            throw new ValidationException("Este funcionário já está alocado em 3 projetos em andamento");
+            throw new ValidacaoException("Este funcionário já está alocado em 3 projetos em andamento");
         }
     }
 
@@ -125,14 +142,14 @@ public class ProjetoService {
     @SuppressWarnings({"checkstyle:MagicNumber"})
     private void validarExclusaoMembro(Projeto projeto) {
         if (List.of(ENCERRADO, CANCELADO, EXCLUIDO).contains(projeto.getSituacao())) {
-            throw new ValidationException("Você não pode remover membros deste projeto");
+            throw new ValidacaoException("Você não pode remover membros deste projeto");
         }
 
         var membrosProjeto = projetoMembroRepository.findByProjetoIdAndSituacaoNot(projeto.getId(),
             ESituacaoProjetoMembro.EXCLUIDO);
 
         if (!ListUtils.isEmpty(membrosProjeto) && membrosProjeto.size() == 1) {
-            throw new ValidationException("O projeto precisa ter no mínimo 1 membro");
+            throw new ValidacaoException("O projeto precisa ter no mínimo 1 membro");
         }
     }
 
@@ -157,13 +174,21 @@ public class ProjetoService {
 
     private void validarAtualizacaoSituacao(Projeto projeto, ESituacaoProjeto situacao) {
         if (Objects.equals(projeto.getSituacao(), ESituacaoProjeto.ENCERRADO)) {
-            throw new ValidationException("Este projeto já foi encerrado");
+            throw new ValidacaoException("Este projeto já foi encerrado");
         } else if (Objects.equals(projeto.getSituacao(), ESituacaoProjeto.CANCELADO)) {
-            throw new ValidationException("Este projeto foi cancelado");
+            throw new ValidacaoException("Este projeto foi cancelado");
         } else if (Objects.equals(projeto.getSituacao(), ESituacaoProjeto.EXCLUIDO)) {
-            throw new ValidationException("Este projeto foi excluído");
-        } else if (!Objects.equals(projeto.getSituacao(), situacao.getSituacaoAnterior())) {
-            throw new ValidationException("A situação não esta na sequência correta");
+            throw new ValidacaoException("Este projeto foi excluído");
+        } else {
+            if (!Objects.equals(situacao, CANCELADO) && !Objects.equals(situacao, EXCLUIDO)) {
+                if (!Objects.equals(projeto.getSituacao(), situacao.getSituacaoAnterior())) {
+                    throw new ValidacaoException("A situação não esta na sequência correta");
+                }
+            } else if (Objects.equals(situacao, EXCLUIDO)) {
+                if (List.of(INICIADO, EM_ANDAMENTO).contains(projeto.getSituacao())) {
+                    throw new ValidacaoException("Este projeto não pode ser excluído");
+                }
+            }
         }
     }
 
@@ -177,7 +202,7 @@ public class ProjetoService {
 
     private void validarCancelamento(Projeto projeto) {
         if (List.of(ENCERRADO, CANCELADO).contains(projeto.getSituacao())) {
-            throw new ValidationException("Você não pode cancelar este projeto");
+            throw new ValidacaoException("Você não pode cancelar este projeto");
         }
     }
 
@@ -191,12 +216,17 @@ public class ProjetoService {
 
     private void validarExclusao(Projeto projeto) {
         if (List.of(INICIADO, EM_ANDAMENTO, ENCERRADO).contains(projeto.getSituacao())) {
-            throw new ValidationException("Você não pode excluir este projeto");
+            throw new ValidacaoException("Você não pode excluir este projeto");
         }
     }
 
     private Projeto getById(String projetoId) {
         return repository.findById(projetoId)
+            .orElseThrow(() -> new NotFoundException("Projeto não encontrado"));
+    }
+
+    private Projeto getCompleteById(String projetoId) {
+        return repository.findCompleteById(projetoId)
             .orElseThrow(() -> new NotFoundException("Projeto não encontrado"));
     }
 
@@ -206,7 +236,7 @@ public class ProjetoService {
     }
 
     private Membro getFuncionarioById(String membroId) {
-        return membroRepository.findGerenteById(membroId)
+        return membroRepository.findFuncionarioById(membroId)
             .orElseThrow(() -> new NotFoundException("Funcionário não encontrado"));
     }
 

@@ -13,6 +13,7 @@ public class ProjetoFiltros {
     public ProjetoPredicate toPredicate() {
         return new ProjetoPredicate()
             .comNome(nome)
-            .comSituacao(situacao);
+            .comSituacao(situacao)
+            .excetoExcluidos();
     }
 }

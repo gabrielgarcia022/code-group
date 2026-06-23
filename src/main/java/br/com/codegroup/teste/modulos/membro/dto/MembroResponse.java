@@ -28,6 +28,7 @@ public class MembroResponse {
             .nome(membro.getNome())
             .atribuicao(membro.getAtribuicao())
             .dataCadastro(membro.getDataCadastro())
+            .situacao(membro.getSituacao())
             .build();
     }
 }

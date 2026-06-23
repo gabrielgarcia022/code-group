@@ -31,6 +31,9 @@ public class Projeto {
     @Column(name = "NOME")
     private String nome;
 
+    @Column(name = "DATA_CADASTRO")
+    private LocalDateTime dataCadastro;
+
     @Column(name = "DATA_INICIO")
     private LocalDate dataInicio;
 
@@ -80,6 +83,7 @@ public class Projeto {
             .descricao(request.getDescricao())
             .situacao(ESituacaoProjeto.EM_ANALISE)
             .risco(analisarRisco(request.getOrcamentoTotal(), null, request.getPrevisaoTermino()))
+            .dataCadastro(LocalDateTime.now())
             .build();
     }
 
@@ -96,6 +100,10 @@ public class Projeto {
             iniciar();
         } else if (Objects.equals(situacao, ESituacaoProjeto.ENCERRADO)) {
             encerrar();
+        } else if (Objects.equals(situacao, ESituacaoProjeto.CANCELADO)) {
+            cancelar();
+        } else if (Objects.equals(situacao, ESituacaoProjeto.EXCLUIDO)) {
+            excluir();
         }
 
         this.situacao = situacao;

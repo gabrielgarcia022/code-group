@@ -78,6 +78,25 @@
             <version>5.0.0</version>
             <classifier>jakarta</classifier>
         </dependency>
+
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>playwright</artifactId>
+			<version>1.57.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.dhatim</groupId>
+			<artifactId>fastexcel</artifactId>
+			<version>0.18.4</version>
+		</dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+            <version>42.7.11</version>
+        </dependency>
     </dependencies>
 
     <build>

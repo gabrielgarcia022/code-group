@@ -13,7 +13,7 @@ public class ProjetoRequest {
     private String id;
     @NotBlank(message = "Nome é obrigatório")
     private String nome;
-    @NotBlank(message = "Previsão de término é obrigatório")
+    @NotNull(message = "Previsão de término é obrigatório")
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate previsaoTermino;
     @NotNull(message = "Orçamento total é obrigatório")

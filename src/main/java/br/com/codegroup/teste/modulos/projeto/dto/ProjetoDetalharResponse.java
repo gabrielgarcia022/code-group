@@ -6,6 +6,7 @@ import br.com.codegroup.teste.modulos.projeto.model.Projeto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjetoResponse {
+public class ProjetoDetalharResponse {
 
     private String id;
     private String nome;
@@ -31,8 +32,11 @@ public class ProjetoResponse {
     private ESituacaoProjeto situacao;
     private String risco;
 
-    public static ProjetoResponse of(Projeto projeto) {
-        return ProjetoResponse.builder()
+    private List<ProjetoMembroResponse> membros;
+    private List<ProjetoMembroResponse> membrosAnteriores;
+
+    public static ProjetoDetalharResponse of(Projeto projeto) {
+        return ProjetoDetalharResponse.builder()
             .id(projeto.getId())
             .nome(projeto.getNome())
             .descricao(projeto.getDescricao())
@@ -45,6 +49,8 @@ public class ProjetoResponse {
             .orcamentoTotal(projeto.getOrcamentoTotal())
             .situacao(projeto.getSituacao())
             .risco(Optional.ofNullable(projeto.getRisco()).map(ERiscoProjeto::getDescricao).orElse(null))
+            .membros(ProjetoMembroResponse.ofMembrosAtivos(projeto.getMembros()))
+            .membrosAnteriores(ProjetoMembroResponse.ofMembrosAnteriores(projeto.getMembros()))
             .build();
     }
 }

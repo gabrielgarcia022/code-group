@@ -2,6 +2,7 @@ package br.com.codegroup.teste.modulos.membro.service;
 
 import br.com.codegroup.teste.config.PageRequest;
 import br.com.codegroup.teste.modulos.comum.exception.NotFoundException;
+import br.com.codegroup.teste.modulos.comum.exception.ValidacaoException;
 import br.com.codegroup.teste.modulos.membro.dto.MembroRequest;
 import br.com.codegroup.teste.modulos.membro.dto.MembroResponse;
 import br.com.codegroup.teste.modulos.membro.enums.ESituacaoMembro;
@@ -9,7 +10,6 @@ import br.com.codegroup.teste.modulos.membro.filtros.MembroFiltros;
 import br.com.codegroup.teste.modulos.membro.model.Membro;
 import br.com.codegroup.teste.modulos.membro.repository.MembroRepository;
 import br.com.codegroup.teste.modulos.projeto.service.ProjetoService;
-import jakarta.validation.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +51,7 @@ public class MembroService {
 
     public void validarEdicao(Membro membro) {
         if (Objects.equals(membro.getSituacao(), ESituacaoMembro.EXCLUIDO)) {
-            throw new ValidationException("Você não pode editar um membro excluido");
+            throw new ValidacaoException("Você não pode editar um membro excluido");
         }
     }
 
@@ -67,7 +67,7 @@ public class MembroService {
 
     private void validarExclusao(Membro membro) {
         if (Objects.equals(membro.getSituacao(), ESituacaoMembro.EXCLUIDO)) {
-            throw new ValidationException("Este membro já está excluído");
+            throw new ValidacaoException("Este membro já está excluído");
         }
     }
 
@@ -82,7 +82,7 @@ public class MembroService {
 
     private void validarReativacao(Membro membro) {
         if (Objects.equals(membro.getSituacao(), ESituacaoMembro.ATIVO)) {
-            throw new ValidationException("Este membro já está ativo");
+            throw new ValidacaoException("Este membro já está ativo");
         }
     }
 

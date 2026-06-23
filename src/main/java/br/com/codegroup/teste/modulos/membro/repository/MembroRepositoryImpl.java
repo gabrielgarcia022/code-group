@@ -25,7 +25,7 @@ public class MembroRepositoryImpl implements MembroRepositoryCustom {
     }
 
     public Optional<Membro> findMembroByIdAndAtribuicao(String membroId, EAtribuicao atribuicao) {
-        return Optional.of(new JPAQueryFactory(entityManager)
+        return Optional.ofNullable(new JPAQueryFactory(entityManager)
             .selectFrom(membro)
             .where(membro.id.eq(membroId), membro.atribuicao.eq(atribuicao))
             .fetchFirst());

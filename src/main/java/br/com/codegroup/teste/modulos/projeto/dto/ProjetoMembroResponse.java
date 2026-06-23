@@ -2,9 +2,11 @@ package br.com.codegroup.teste.modulos.projeto.dto;
 
 import br.com.codegroup.teste.modulos.membro.model.Membro;
 import br.com.codegroup.teste.modulos.projeto.enums.ESituacaoProjetoMembro;
-import br.com.codegroup.teste.modulos.projeto.model.Projeto;
 import br.com.codegroup.teste.modulos.projeto.model.ProjetoMembro;
+import org.thymeleaf.util.ListUtils;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +19,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProjetoMembroResponse {
 
-    private String projetoId;
     private String membroId;
     private String membroNome;
     private LocalDateTime dataCadastro;
@@ -27,7 +28,6 @@ public class ProjetoMembroResponse {
 
     public static ProjetoMembroResponse of(ProjetoMembro projetoMembro) {
         return ProjetoMembroResponse.builder()
-            .projetoId(Optional.ofNullable(projetoMembro.getProjeto()).map(Projeto::getId).orElse(null))
             .membroId(Optional.ofNullable(projetoMembro.getMembro()).map(Membro::getId).orElse(null))
             .membroNome(Optional.ofNullable(projetoMembro.getMembro()).map(Membro::getNome).orElse(null))
             .dataCadastro(projetoMembro.getDataCadastro())
@@ -35,5 +35,23 @@ public class ProjetoMembroResponse {
             .isResponsavel(projetoMembro.getIsResponsavel())
             .situacao(projetoMembro.getSituacao())
             .build();
+    }
+
+    public static List<ProjetoMembroResponse> ofMembrosAtivos(List<ProjetoMembro> membros) {
+        return !ListUtils.isEmpty(membros)
+            ? membros.stream()
+              .filter(membro -> Objects.equals(membro.getSituacao(), ESituacaoProjetoMembro.PARTICIPANTE))
+              .map(ProjetoMembroResponse::of)
+              .toList()
+            : null;
+    }
+
+    public static List<ProjetoMembroResponse> ofMembrosAnteriores(List<ProjetoMembro> membros) {
+        return !ListUtils.isEmpty(membros)
+            ? membros.stream()
+              .filter(membro -> Objects.equals(membro.getSituacao(), ESituacaoProjetoMembro.EXCLUIDO))
+              .map(ProjetoMembroResponse::of)
+              .toList()
+            : null;
     }
 }

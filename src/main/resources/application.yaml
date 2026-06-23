@@ -4,3 +4,25 @@ server:
 spring:
   application:
     name: teste
+
+  datasource:
+    url: jdbc:postgresql://192.168.1.140:5432/codegroup
+    username: postgres
+    password: f5fd789bd73f7605fa6ba300cf37cb43
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 4
+      auto-commit: true
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    properties:
+      jakarta:
+        persistence:
+          validation:
+            mode: none
