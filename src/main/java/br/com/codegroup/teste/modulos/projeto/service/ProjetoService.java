@@ -1,5 +1,6 @@
 package br.com.codegroup.teste.modulos.projeto.service;
 
+import br.com.codegroup.teste.config.FilesUtils;
 import br.com.codegroup.teste.config.PageRequest;
 import br.com.codegroup.teste.modulos.comum.exception.NotFoundException;
 import br.com.codegroup.teste.modulos.comum.exception.ValidacaoException;
@@ -13,13 +14,22 @@ import br.com.codegroup.teste.modulos.projeto.model.Projeto;
 import br.com.codegroup.teste.modulos.projeto.model.ProjetoMembro;
 import br.com.codegroup.teste.modulos.projeto.repository.ProjetoMembroRepository;
 import br.com.codegroup.teste.modulos.projeto.repository.ProjetoRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import org.dhatim.fastexcel.Color;
+import org.dhatim.fastexcel.Workbook;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.ListUtils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 import static br.com.codegroup.teste.modulos.projeto.enums.ESituacaoProjeto.*;
 
@@ -30,6 +40,7 @@ public class ProjetoService {
     private final ProjetoMembroRepository projetoMembroRepository;
     private final MembroRepository membroRepository;
     private final ProjetoRepository repository;
+    private final FilesUtils filesUtils;
 
     public Page<ProjetoResponse> getAll(ProjetoFiltros filtros, PageRequest pageRequest) {
         return repository.findAll(filtros.toPredicate().build(), pageRequest).map(ProjetoResponse::of);
@@ -243,5 +254,65 @@ public class ProjetoService {
     private ProjetoMembro getMembroProjeto(String projetoId, String membroId) {
         return projetoMembroRepository.findByProjetoIdAndMembroIdAndSituacao(projetoId, membroId,
             ESituacaoProjetoMembro.PARTICIPANTE).orElseThrow(() -> new NotFoundException("Membro do projeto não encontrado"));
+    }
+
+    private PortfolioRelatorioResponse getPortfolio() {
+        return PortfolioRelatorioResponse.of(repository.findAllComplete());
+    }
+
+    @SneakyThrows
+    public void gerarRelatorioPortfolioExcel(HttpServletResponse response) {
+        var portfolio = getPortfolio();
+        var planilha = gerarPlanilhaPortfolio(portfolio);
+
+        filesUtils.baixarArquivo(response,
+            new FileInputStream(planilha),
+            "portfolio.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    @SneakyThrows
+    @SuppressWarnings({"checkstyle:MagicNumber", "checkstyle:MethodLength"})
+    private File gerarPlanilhaPortfolio(PortfolioRelatorioResponse portfolio) {
+        var arquivo = Files.createTempFile("portfolio", ".xlsx").toFile();
+        try (var fos = new FileOutputStream(arquivo)) {
+            var livro = new Workbook(fos, "portfolio", "1.0");
+            var planilha = livro.newWorksheet("Portfolio");
+
+            planilha.width(0, 40);
+            planilha.width(1, 20);
+            planilha.width(2, 20);
+            planilha.width(3, 20);
+            planilha.width(4, 40);
+
+            planilha.value(0, 0, "SITUAÇÃO");
+            planilha.value(0, 1, "QUANTIDADE");
+            planilha.value(0, 2, "VALOR");
+            planilha.value(0, 3, "MEMBROS");
+            planilha.value(0, 4, "DURAÇÃO");
+            planilha.range(0, 0, 0, 4).style()
+                .horizontalAlignment("center").verticalAlignment("center")
+                .fillColor(Color.GRAY9).fontColor(Color.WHITE).set();
+
+            var row = new AtomicInteger(1);
+            portfolio.getProjetosSituacao().forEach(projeto -> {
+                planilha.value(row.get(), 0, projeto.getSituacao());
+                planilha.value(row.get(), 1, projeto.getQuantidade());
+                planilha.value(row.get(), 2, projeto.getValor());
+                planilha.value(row.get(), 3, projeto.getMembros());
+                planilha.value(row.get(), 4, projeto.getDuracao());
+
+                row.set(row.get() + 1);
+            });
+
+            planilha.range(1, 1, row.get(), 1).style().horizontalAlignment("center").set();
+            planilha.range(1, 3, row.get(), 3).style().horizontalAlignment("center").set();
+
+            livro.finish();
+
+            return arquivo;
+        } catch (Exception ex) {
+            throw new ValidacaoException("Erro ao gerar planilha");
+        }
     }
 }

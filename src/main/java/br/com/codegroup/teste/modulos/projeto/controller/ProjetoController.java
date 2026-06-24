@@ -86,6 +86,6 @@ public class ProjetoController {
     @GetMapping("relatorio/excel")
     @Operation(summary = "Gerar relatório EXCEL", description = "Gera relatório do portfólio de projetos em excel")
     public void gerarRelatorioPortfolioExcel(HttpServletResponse response) {
-        // TODO
+        service.gerarRelatorioPortfolioExcel(response);
     }
 }
