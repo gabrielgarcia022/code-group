@@ -49,7 +49,7 @@ public class TesteExceptionHandler {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         var mensagem = ex.getBindingResult().getFieldErrors().stream()
@@ -58,6 +58,6 @@ public class TesteExceptionHandler {
             .orElse("Há itens ausentes no objeto");
 
         log.error(mensagem);
-        return new ErrorResponse(HttpStatus.FORBIDDEN.value(), mensagem);
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), mensagem);
     }
 }
