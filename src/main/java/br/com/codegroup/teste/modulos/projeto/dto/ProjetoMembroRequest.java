@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 public class ProjetoMembroRequest {
 
-    @NotBlank(message = "O id do projeto é obrigatório")
+    @NotBlank(message = "Id do projeto é obrigatório")
     private String projetoId;
-    @NotBlank(message = "O id do membro é obrigatório")
+    @NotBlank(message = "Id do membro é obrigatório")
     private String membroId;
 }
