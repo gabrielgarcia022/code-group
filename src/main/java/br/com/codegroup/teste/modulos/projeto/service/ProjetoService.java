@@ -25,6 +25,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -258,6 +261,25 @@ public class ProjetoService {
 
     private PortfolioRelatorioResponse getPortfolio() {
         return PortfolioRelatorioResponse.of(repository.findAllComplete());
+    }
+
+    @SneakyThrows
+    public void gerarRelatorioPortfolioPdf(HttpServletResponse response) {
+        var portfolio = getPortfolio();
+        var html = getHtmlPortfolio(portfolio);
+        var pdf = filesUtils.htmlToPdfStream(html);
+
+        filesUtils.baixarArquivo(response, pdf, "portfolio.pdf", "application/pdf");
+    }
+
+    private String getHtmlPortfolio(PortfolioRelatorioResponse portfolio) {
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        var obj = new HashMap<String, Object>();
+
+        obj.put("data", formatter.format(LocalDate.now()));
+        obj.put("projetos", portfolio.getProjetosSituacao());
+
+        return filesUtils.processTemplate("portfolio", obj);
     }
 
     @SneakyThrows

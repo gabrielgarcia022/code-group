@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class DateUtils {
 
-    @SuppressWarnings({"checkstyle:MagicNumber"})
+    @SuppressWarnings({"checkstyle:MagicNumber", "checkstyle:MethodLength"})
     public static String getDuracaoFromDias(Long totalDias) {
         if (Objects.nonNull(totalDias)) {
             if (totalDias < 0) {

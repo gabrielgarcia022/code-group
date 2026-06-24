@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Corinthia:wght@400;700&family=Dancing+Script:wght@400..700&family=Fleur+De+Leah&family=Great+Vibes&family=Hurricane&family=Imperial+Script&family=Lavishly+Yours&family=Monsieur+La+Doulaise&family=Qwitcher+Grypen:wght@400;700&family=Whisper&display=swap"
+            rel="stylesheet"
+    />
+
+    <style type="text/css">
+        @page {
+            size: 210mm 297mm;
+            margin: 0mm;
+        }
+
+        :root {
+            --primary: #0db6ff;
+            --primary-2: #0b3bff;
+            --text: #1f2a37;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --bg: #f5f7fb;
+            --card: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            font-size: 10.5px;
+            color: var(--text);
+            background: var(--bg);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background: var(--bg);
+            page-break-after: always;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #C20B0B, #570909);
+            padding: 2mm 8mm 38mm 8mm;
+            color: #fff;
+        }
+
+        .header-top {
+            display: table;
+            width: 100%;
+        }
+
+        .brand {
+            padding-top: 10px;
+            display: table-cell;
+            vertical-align: middle;
+            width: 55%;
+        }
+
+        .brand img {
+            width: 120px;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .header-meta {
+            display: table-cell;
+            vertical-align: middle;
+            width: 45%;
+            text-align: right;
+        }
+
+        .doc-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.2;
+            letter-spacing: 0.2px;
+        }
+
+        .period {
+            margin-top: 6px;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .content-wrap {
+            padding: 0;
+        }
+
+        .content-border {
+            width: calc(100% - 14mm);
+            margin: 0 auto;
+            padding: 1px;
+            border-radius: 13px;
+            margin-top: -130px;
+            background: linear-gradient(90deg, #C20B0B, #570909);
+            box-shadow: 0 16px 40px rgba(17, 24, 39, 0.12);
+        }
+
+        .content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 4mm 4mm;
+        }
+
+        .section {
+            margin-bottom: 4mm;
+        }
+
+        .section-head {
+            display: table;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+
+        .section-title {
+            display: table-cell;
+            vertical-align: bottom;
+            font-weight: 800;
+            font-size: 11px;
+            color: var(--text);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .col {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        .col + .col {
+            padding-left: 12px;
+        }
+
+        table.table {
+            width: calc(100% + 31px);
+            margin-left: -16px;
+            position: relative;
+            border-collapse: collapse;
+            z-index: 1;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .gradient {
+            background: linear-gradient(90deg, #C20B0B, #570909);
+        }
+
+        table.table thead th {
+            padding: 8px 8px;
+            text-align: left;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        table.table tbody td {
+            padding: 4px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        table.table tbody tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        table.table tbody tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+    <div class="header">
+        <div class="header-top">
+            <div class="brand">
+                <img src="https://codegroup.com.br/wp-content/uploads/2025/06/logo-code-bco.svg" alt=""/>
+            </div>
+
+            <div class="header-meta">
+                <h1 class="doc-title">Portfólio</h1>
+                <div class="period">
+                    <span th:text="${data}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrap">
+        <div class="content-border">
+            <div class="content">
+                <div>
+                    <div class="section-head">
+                        <div class="section-title">Projetos</div>
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                        <tr class="gradient">
+                            <th style="width: 25%;">Situação</th>
+                            <th>Quantidade</th>
+                            <th style="width: 18%;">Valor</th>
+                            <th style="width: 13%">Membros</th>
+                            <th style="width: 27%;">Duração</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="projeto : ${projetos}">
+                            <td th:text="${projeto.situacao}"></td>
+                            <td th:text="${projeto.quantidade}"></td>
+                            <td th:text="${projeto.valor}"></td>
+                            <td th:text="${projeto.membros}"></td>
+                            <td th:text="${projeto.duracao}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

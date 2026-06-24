@@ -80,7 +80,7 @@ public class ProjetoController {
     @GetMapping("relatorio/pdf")
     @Operation(summary = "Gerar relatório PDF", description = "Gera relatório do portfólio de projetos em pdf")
     public void gerarRelatorioPortfolioPdf(HttpServletResponse response) {
-        // TODO
+        service.gerarRelatorioPortfolioPdf(response);
     }
 
     @GetMapping("relatorio/excel")
