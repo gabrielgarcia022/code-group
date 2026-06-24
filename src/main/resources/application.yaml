@@ -26,3 +26,8 @@ spring:
         persistence:
           validation:
             mode: none
+
+security:
+  jwt:
+    secret: 58785GB306846147576022033685535165645F24838K469547G946628AB7457F
+    expiration-minutes: 480
