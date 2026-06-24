@@ -31,3 +31,12 @@ security:
   jwt:
     secret: 58785GB306846147576022033685535165645F24838K469547G946628AB7457F
     expiration-minutes: 480
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+  api-docs:
+    path: /v3/api-docs
